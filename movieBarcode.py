@@ -7,6 +7,7 @@ tps1 = time.clock()
 moviePath = '/Users/christophe/Movies/201211_musk.mp4'
 savePath = '/Users/christophe/Movies/musk.jpg'
 framesNumber = 1000
+frameTime = 1
 tempFolder = '/Users/christophe/Movies/tmp/'
 
 
@@ -25,9 +26,10 @@ print 'résolution: %ix%i' % (movieWidth,movieHeight)
 movieResolution = '%ix%i' % (movieWidth,movieHeight)
 frameScale = round(movieDuration/framesNumber,2)
 print frameScale
-frameTime = 1
+
+
 #get asked number of movie frames
-for i in range (0,1000):
+for i in range (0,framesNumber):
 	movie.thumbnail(moviePath, frameTime, '/Users/christophe/Movies/tmp/%i.jpeg' %i,movieResolution)
 	frameTime=frameTime+frameScale
 	#print 'frame %i at %f seconds' %(i,round(frameTime,2))
