@@ -1,7 +1,7 @@
 #!usr/bin/python
 #-*-coding:utf-8-*-
 
-import sys,os
+import sys,os,res
 from converter import Converter
 
 moviePath = '/Users/christophe/Movies/201211_musk.mp4'
@@ -21,5 +21,4 @@ movieWidth = info.video.video_width
 movieHeight = info.video.video_height
 
 
-print 'durée: %i secondes' % movieDuration
-print 'résolution: %ix%i' % (movieHeight,movieWidth)
+print 'durée:'+movieDuration
