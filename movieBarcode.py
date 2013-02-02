@@ -5,7 +5,7 @@ import sys,os,time
 from converter import Converter
 from PIL import Image
 tps1 = time.clock()
-moviePath = '/Users/christophe/Movies/The Social Network (2010) [1080]/The Social Network (2010) 1080p BrRip x264 - 1.2GB - YIFY.mp4'
+moviePath = '/Users/christophe/Movies/The Social Network (2010) [1080]/The Social Network (2010) 1080p BrRip x264 - 1.2GB - YIFY'
 savePath = '/Users/christophe/Movies/musk.jpg'
 framesNumber = 1000
 frameTime = 0
@@ -29,7 +29,10 @@ movieResolution = '%ix%i' % (movieWidth,movieHeight)
 frameScale = round(movieDuration/framesNumber,2)
 print frameScale
 
+barcode = Image.new('RGB', (movieWidth,movieHeight))
 
+x=movieWidth
+y=movieHeight
 #get asked number of movie frames
 for i in range (0,movieWidth-1):
 	movie.thumbnail(moviePath, frameTime, tempFolder+'%i.jpeg' %i,movieResolution)
@@ -40,9 +43,14 @@ for i in range (0,movieWidth-1):
 	# left, upper, right, and lower 
 	image = Image.open("/Users/christophe/Movies/temporary/%i.jpeg"%i)
 	w,h = image.size
-	image.crop((0,h-h,1,h)).save("/Users/christophe/Movies/temporary/A%i.jpeg"%i)
-	print 'frame %i cropped' %(i)
+	image.crop((0,h-h,1,h)).save("/Users/christophe/Movies/temporary/crop%i.jpeg"%i)
+	print 'frame %i cropped' %(i)	
+	crop = Image.open("/Users/christophe/Movies/temporary/crop%i.jpeg"%i)	
+	barcode.paste(crop, (i,0))
 
 
+
+
+barcode.save('/Users/christophe/Movies/temporary/out.jpg')
 tps2 = time.clock()
 print(tps2 - tps1)
