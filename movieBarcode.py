@@ -1,20 +1,22 @@
 #!usr/bin/python
 #-*-coding:utf-8-*-
-
-import sys,os,time
+#the code takes 3 arguments movie location, output image location, number of desired frames
+import sys,os,time,shutil,datetime
 from converter import Converter
 from PIL import Image
-tps1 = time.clock()
-moviePath = '/Users/christophe/Movies/The Social Network (2010) [1080]/The Social Network (2010) 1080p BrRip x264 - 1.2GB - YIFY'
-savePath = '/Users/christophe/Movies/musk.jpg'
-framesNumber = 1000
+start = datetime.datetime.now()
+
+moviePath = sys.argv[1]
+savePath = sys.argv[2]
+framesNumber = sys.argv[3]
 frameTime = 0
 tempFolder = '/Users/christophe/Movies/temporary/'
 if not os.path.isdir(tempFolder):
    os.makedirs(tempFolder)
 
-movie = Converter()
 
+#create an object to use converter library
+movie = Converter()
 
 #get movie length
 info = movie.probe(moviePath)
@@ -22,35 +24,54 @@ movieDuration = info.format.duration
 movieWidth = info.video.video_width
 movieHeight = info.video.video_height
 
-
+print os.path.splitext(moviePath)[0]
 print 'durée: %i secondes' % movieDuration
 print 'résolution: %ix%i' % (movieWidth,movieHeight)
 movieResolution = '%ix%i' % (movieWidth,movieHeight)
-frameScale = round(movieDuration/framesNumber,2)
-print frameScale
+frameScale = round(movieDuration/framesNumber,1)
+print '%s secondes entre chaque capture d\'image '%frameScale
 
+#create empty output image
 barcode = Image.new('RGB', (movieWidth,movieHeight))
 
 x=movieWidth
 y=movieHeight
-#get asked number of movie frames
-for i in range (0,movieWidth-1):
+cropInterval = int(movieWidth)/int(framesNumber)
+print 'largeur en px de chaque bande: %i' %cropInterval
+
+z=0
+for i in range (0,framesNumber-1):
 	movie.thumbnail(moviePath, frameTime, tempFolder+'%i.jpeg' %i,movieResolution)
-	frameTime=frameTime+frameScale
-	print 'frame %i at %f seconds' %(i,round(frameTime,2))
-	#print 'width %i'%w
-	#print 'height %i'%h
 	# left, upper, right, and lower 
-	image = Image.open("/Users/christophe/Movies/temporary/%i.jpeg"%i)
+	image = Image.open(tempFolder+"%i.jpeg"%i)
 	w,h = image.size
-	image.crop((0,h-h,1,h)).save("/Users/christophe/Movies/temporary/crop%i.jpeg"%i)
-	print 'frame %i cropped' %(i)	
-	crop = Image.open("/Users/christophe/Movies/temporary/crop%i.jpeg"%i)	
-	barcode.paste(crop, (i,0))
+	image.crop((0,h-h,cropInterval,h)).save(tempFolder+"crop%i.jpeg"%i)
+	crop = Image.open(tempFolder+"crop%i.jpeg"%i)
+	frameTime=frameTime+frameScale
+	barcode.paste(crop, (z,cropInterval))
+
+	#move each crop 'interval' pixels from previous crop
+	z=z+int(cropInterval)
+	print 'framed %i at %f seconds and cropped' %(i,frameTime)	
 
 
+#delete temp folder
+shutil.rmtree(tempFolder)
+
+barcode.save(savePath)
+
+OUT = Converter()
 
 
-barcode.save('/Users/christophe/Movies/temporary/out.jpg')
-tps2 = time.clock()
-print(tps2 - tps1)
+#print out.jpg size
+img = Image.open(savePath)
+# get the image's width and height in pixels
+width, height = img.size
+print width
+print height
+
+stop = datetime.datetime.now()
+
+#print when the soft started and ended
+print str(start)
+print str(stop)
