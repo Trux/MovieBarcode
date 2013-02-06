@@ -8,9 +8,14 @@ start = datetime.datetime.now()
 
 moviePath = sys.argv[1]
 savePath = sys.argv[2]
-framesNumber = sys.argv[3]
+framesNumber = int(sys.argv[3])
 frameTime = 0
-tempFolder = '/Users/christophe/Movies/temporary/'
+
+print moviePath
+print savePath
+print framesNumber
+
+tempFolder = '/tmp/barcodeMovie/'
 if not os.path.isdir(tempFolder):
    os.makedirs(tempFolder)
 
@@ -18,17 +23,16 @@ if not os.path.isdir(tempFolder):
 #create an object to use converter library
 movie = Converter()
 
-#get movie length
+#get movie length and resolution
 info = movie.probe(moviePath)
-movieDuration = info.format.duration
+movieDuration = int(info.format.duration)
 movieWidth = info.video.video_width
 movieHeight = info.video.video_height
 
-print os.path.splitext(moviePath)[0]
 print 'durée: %i secondes' % movieDuration
 print 'résolution: %ix%i' % (movieWidth,movieHeight)
 movieResolution = '%ix%i' % (movieWidth,movieHeight)
-frameScale = round(movieDuration/framesNumber,1)
+frameScale = movieDuration/framesNumber
 print '%s secondes entre chaque capture d\'image '%frameScale
 
 #create empty output image
