@@ -11,14 +11,14 @@ savePath = sys.argv[2]
 framesNumber = int(sys.argv[3])
 frameTime = 0
 
-print moviePath
-print savePath
-print framesNumber
-
 tempFolder = '/tmp/barcodeMovie/'
 if not os.path.isdir(tempFolder):
    os.makedirs(tempFolder)
 
+
+print moviePath
+print savePath
+print framesNumber
 
 #create an object to use converter library
 movie = Converter()
@@ -28,45 +28,42 @@ info = movie.probe(moviePath)
 movieDuration = int(info.format.duration)
 movieWidth = info.video.video_width
 movieHeight = info.video.video_height
+cropInterval = int(movieWidth)/int(framesNumber)
 
+#display movie info
+print 'largeur en px de chaque bande: %i' %cropInterval
 print 'durée: %i secondes' % movieDuration
 print 'résolution: %ix%i' % (movieWidth,movieHeight)
 movieResolution = '%ix%i' % (movieWidth,movieHeight)
 frameScale = movieDuration/framesNumber
 print '%s secondes entre chaque capture d\'image '%frameScale
 
+
 #create empty output image
 barcode = Image.new('RGB', (movieWidth,movieHeight))
 
-x=movieWidth
-y=movieHeight
-cropInterval = int(movieWidth)/int(framesNumber)
-print 'largeur en px de chaque bande: %i' %cropInterval
-
 z=0
-print movieWidth%cropInterval
 if movieWidth%cropInterval != 0:
-	print 'movie resolution must be proportionna to framescale*number of frames'
+	print 'movie resolution must be proportionnal to framescale*number of frames'
 else:
-	for i in range (0,framesNumber-1):
+	for i in range (0,framesNumber):
 		#Take a screenshot
 		movie.thumbnail(moviePath, frameTime, tempFolder+'%i.jpeg' %i,movieResolution)
 		# resize image
 		im = Image.open(tempFolder+'%i.jpeg' %i)
 		croppedImage = im.resize((cropInterval,movieHeight))
 		croppedImage.save(tempFolder+"crop%i.jpeg"%i)
-		#add  resized image to final image 
-		frameTime=frameTime+frameScale
-		barcode.paste(croppedImage, (z,cropInterval))
-		#move each crop 'interval' pixels from previous crop
+		#add  resized image to final image		
+		barcode.paste(croppedImage, (z,0))
+		#get next X position on the output image
 		z=z+int(cropInterval)
+		#get position of the next frame to extract
+		frameTime=frameTime+frameScale
 		print 'framed %i at %f seconds and cropped' %(i,frameTime)	
 
-
-#delete temp folder
-shutil.rmtree(tempFolder)
-
 barcode.save(savePath)
+#delete temp folder
+#shutil.rmtree(tempFolder)
 
 stop = datetime.datetime.now()
 
