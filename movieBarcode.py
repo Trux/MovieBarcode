@@ -44,35 +44,29 @@ cropInterval = int(movieWidth)/int(framesNumber)
 print 'largeur en px de chaque bande: %i' %cropInterval
 
 z=0
-for i in range (0,framesNumber-1):
-	movie.thumbnail(moviePath, frameTime, tempFolder+'%i.jpeg' %i,movieResolution)
-	# left, upper, right, and lower 
-	image = Image.open(tempFolder+"%i.jpeg"%i)
-	w,h = image.size
-	image.crop((0,h-h,cropInterval,h)).save(tempFolder+"crop%i.jpeg"%i)
-	crop = Image.open(tempFolder+"crop%i.jpeg"%i)
-	frameTime=frameTime+frameScale
-	barcode.paste(crop, (z,cropInterval))
-
-	#move each crop 'interval' pixels from previous crop
-	z=z+int(cropInterval)
-	print 'framed %i at %f seconds and cropped' %(i,frameTime)	
+print movieWidth%cropInterval
+if movieWidth%cropInterval != 0:
+	print 'movie resolution must be proportionna to framescale*number of frames'
+else:
+	for i in range (0,framesNumber-1):
+		#Take a screenshot
+		movie.thumbnail(moviePath, frameTime, tempFolder+'%i.jpeg' %i,movieResolution)
+		# resize image
+		im = Image.open(tempFolder+'%i.jpeg' %i)
+		croppedImage = im.resize((cropInterval,movieHeight))
+		croppedImage.save(tempFolder+"crop%i.jpeg"%i)
+		#add  resized image to final image 
+		frameTime=frameTime+frameScale
+		barcode.paste(croppedImage, (z,cropInterval))
+		#move each crop 'interval' pixels from previous crop
+		z=z+int(cropInterval)
+		print 'framed %i at %f seconds and cropped' %(i,frameTime)	
 
 
 #delete temp folder
 shutil.rmtree(tempFolder)
 
 barcode.save(savePath)
-
-OUT = Converter()
-
-
-#print out.jpg size
-img = Image.open(savePath)
-# get the image's width and height in pixels
-width, height = img.size
-print width
-print height
 
 stop = datetime.datetime.now()
 
