@@ -51,10 +51,10 @@ else:
 		movie.thumbnail(moviePath, frameTime, tempFolder+'%i.jpeg' %i,movieResolution)
 		# resize image
 		im = Image.open(tempFolder+'%i.jpeg' %i)
-		croppedImage = im.resize((cropInterval,movieHeight))
-		croppedImage.save(tempFolder+"crop%i.jpeg"%i)
+		resizedImage = im.resize((cropInterval,movieHeight),Image.ANTIALIAS)
+		resizedImage.save(tempFolder+"crop%i.jpeg"%i)
 		#add  resized image to final image		
-		barcode.paste(croppedImage, (z,0))
+		barcode.paste(resizedImage, (z,0))
 		#get next X position on the output image
 		z=z+int(cropInterval)
 		#get position of the next frame to extract
@@ -64,6 +64,8 @@ else:
 barcode.save(savePath)
 #delete temp folder
 #shutil.rmtree(tempFolder)
+
+
 
 stop = datetime.datetime.now()
 
