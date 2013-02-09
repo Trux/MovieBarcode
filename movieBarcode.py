@@ -11,7 +11,13 @@ savePath = sys.argv[2]
 framesNumber = int(sys.argv[3])
 frameTime = 0
 
-tempFolder = '/tmp/barcodeMovie/'
+#create temp file
+fileName = moviePath.rfind('/')
+movieName = moviePath[fileName:-4]
+tempFolder = '/tmp/barcodeMovie%s/'%movieName
+
+print tempFolder
+
 if not os.path.isdir(tempFolder):
    os.makedirs(tempFolder)
 
@@ -44,7 +50,7 @@ barcode = Image.new('RGB', (movieWidth,movieHeight))
 
 z=0
 if movieWidth%cropInterval != 0:
-	print 'movie resolution must be proportionnal to framescale*number of frames'
+	print 'movie resolution must be proportionnal to framescale*number of frames and under final width'
 else:
 	for i in range (0,framesNumber):
 		#Take a screenshot
@@ -63,7 +69,7 @@ else:
 
 barcode.save(savePath)
 #delete temp folder
-#shutil.rmtree(tempFolder)
+shutil.rmtree(tempFolder)
 
 
 
