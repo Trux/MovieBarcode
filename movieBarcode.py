@@ -18,7 +18,7 @@ print "width of one image: " + str(width)
 #create temp file
 fileName = moviePath.rfind('/')
 movieName = moviePath[fileName:-4]
-tempFolder = savePath+"/temp/"
+tempFolder = str(savePath)+'/temp'
 
 if not os.path.isdir(tempFolder):
    os.makedirs(tempFolder)
@@ -32,14 +32,14 @@ print "total number of frames: "+ str(Totalframes)
 
 frameInterval = Totalframes//framesNumber 
 
-print "Interval between each frame to capture " + str(frameInterval) +"s"
+print "Interval between each frame to capture  " + str(frameInterval) +"s"
 
 
-
+destination = str(savePath)+"/"+str(framesNumber)+'.jpeg'
 #create empty output image
 barcode = Image.new('RGB', (1920,1080))
-barcode.save(savePath)
-finalBarcode= Image.open(savePath)
+barcode.save(destination)
+finalBarcode= Image.open(destination)
 z=0
 count = 0
 framePosition = 0
@@ -57,22 +57,10 @@ while count < framesNumber:
         finalBarcode.paste(img,(Barcodewidth,0))
         Barcodewidth = Barcodewidth + width
         count += 1
-finalBarcode.save(savePath)
 
-
-
-
-
+finalBarcode.save(destination)
 
 stop = datetime.datetime.now()
 
 print str(start)
 print str(stop)
-
-
-
-
-
-
-
-
