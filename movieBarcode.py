@@ -1,80 +1,31 @@
 #!usr/bin/python
 #-*-coding:utf-8-*-
-#the code takes 3 arguments movie location, output image location, number of desired frames
 import sys,os,time,shutil,datetime
-from converter import Converter
-from PIL import Image
-start = datetime.datetime.now()
+import cv2
+import cv2.cv as cv
 
-moviePath = sys.argv[1]
-savePath = sys.argv[2]
-framesNumber = int(sys.argv[3])
-frameTime = 0
-
-#create temp file
-fileName = moviePath.rfind('/')
-movieName = moviePath[fileName:-4]
-tempFolder = '/tmp/barcodeMovie%s/'%movieName
-
-print tempFolder
-
+tempFolder = '/home/christophe/movie'
 if not os.path.isdir(tempFolder):
    os.makedirs(tempFolder)
+   
+stream = cv2.VideoCapture('video.mp4')
+
+#get number of frames
+frames = stream.get(cv.CV_CAP_PROP_FRAME_COUNT)
+width = stream.get(cv.CV_CAP_PROP_FRAME_WIDTH)
+height  = stream.get(cv.CV_CAP_PROP_FRAME_HEIGHT )
+
+count = 0;
+while count < 10:
+  success,image = stream.read()
+  cv2.imwrite(tempFolder + "/frame%d.jpg" % count, image)     # save frame as JPEG file
+  if cv2.waitKey(10) == 27:                     # exit if Escape is hit
+      break
+  count += 1
 
 
-print moviePath
-print savePath
-print framesNumber
-
-#create an object to use converter library
-movie = Converter()
-
-#get movie length and resolution
-info = movie.probe(moviePath)
-movieDuration = int(info.format.duration)
-movieWidth = info.video.video_width
-movieHeight = info.video.video_height
-cropInterval = int(movieWidth)/int(framesNumber)
-
-#display movie info
-print 'largeur en px de chaque bande: %i' %cropInterval
-print 'durée: %i secondes' % movieDuration
-print 'résolution: %ix%i' % (movieWidth,movieHeight)
-movieResolution = '%ix%i' % (movieWidth,movieHeight)
-frameScale = movieDuration/framesNumber
-print '%s secondes entre chaque capture d\'image '%frameScale
-
-
-#create empty output image
-barcode = Image.new('RGB', (movieWidth,movieHeight))
-
-z=0
-if movieWidth%cropInterval != 0:
-	print 'movie resolution must be proportionnal to framescale*number of frames and under final width'
-else:
-	for i in range (0,framesNumber):
-		#Take a screenshot
-		movie.thumbnail(moviePath, frameTime, tempFolder+'%i.jpeg' %i,movieResolution)
-		# resize image
-		im = Image.open(tempFolder+'%i.jpeg' %i)
-		resizedImage = im.resize((cropInterval,movieHeight),Image.ANTIALIAS)
-		resizedImage.save(tempFolder+"crop%i.jpeg"%i)
-		#add  resized image to final image		
-		barcode.paste(resizedImage, (z,0))
-		#get next X position on the output image
-		z=z+int(cropInterval)
-		#get position of the next frame to extract
-		frameTime=frameTime+frameScale
-		print 'framed %i at %f seconds and cropped' %(i,frameTime)	
-
-barcode.save(savePath)
-#delete temp folder
-shutil.rmtree(tempFolder)
-
-
-
-stop = datetime.datetime.now()
-
-#print when the soft started and ended
-print str(start)
-print str(stop)
+print frames
+print width
+print height
+#cv2.imwrite("frame.jpg", image) 
+print stream.get(cv.CV_CAP_PROP_POS_MSEC)
