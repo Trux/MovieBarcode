@@ -3,29 +3,76 @@
 import sys,os,time,shutil,datetime
 import cv2
 import cv2.cv as cv
+from PIL import Image
 
-tempFolder = '/home/christophe/movie'
+start = datetime.datetime.now()
+
+moviePath = sys.argv[1]
+savePath = sys.argv[2]
+framesNumber = int(sys.argv[3])
+BarcodeWidth= int(sys.argv[4])
+
+frameTime = 0
+width = BarcodeWidth / framesNumber
+print "width of one image: " + str(width)
+#create temp file
+fileName = moviePath.rfind('/')
+movieName = moviePath[fileName:-4]
+tempFolder = savePath+"/temp/"
+
 if not os.path.isdir(tempFolder):
    os.makedirs(tempFolder)
-   
-stream = cv2.VideoCapture('video.mp4')
+#capture  video
+stream = cv2.VideoCapture(moviePath)
 
 #get number of frames
-frames = stream.get(cv.CV_CAP_PROP_FRAME_COUNT)
-width = stream.get(cv.CV_CAP_PROP_FRAME_WIDTH)
-height  = stream.get(cv.CV_CAP_PROP_FRAME_HEIGHT )
 
-count = 0;
-while count < 10:
-  success,image = stream.read()
-  cv2.imwrite(tempFolder + "/frame%d.jpg" % count, image)     # save frame as JPEG file
-  if cv2.waitKey(10) == 27:                     # exit if Escape is hit
-      break
-  count += 1
+Totalframes = stream.get(cv.CV_CAP_PROP_FRAME_COUNT)
+print "total number of frames: "+ str(Totalframes)
+
+frameInterval = Totalframes//framesNumber 
+
+print "Interval between each frame to capture " + str(frameInterval) +"s"
 
 
-print frames
-print width
-print height
-#cv2.imwrite("frame.jpg", image) 
-print stream.get(cv.CV_CAP_PROP_POS_MSEC)
+
+#create empty output image
+barcode = Image.new('RGB', (1920,1080))
+barcode.save(savePath)
+finalBarcode= Image.open(savePath)
+z=0
+count = 0
+framePosition = 0
+Barcodewidth=0
+while count < framesNumber:	
+	stream.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, framePosition); 
+        success,image = stream.read()
+        image = cv2.resize(image, (width, 1920))
+        cv2.imwrite(tempFolder + "/TempFrame%d.jpg" % count, image)     # save frame as JPEG file
+        print 'en cours ' + "image n° "+ str(count) +" position "+ str(framePosition)
+        resizedImage = str(tempFolder + "/TempFrame%d.jpg" % count)
+        framePosition = framePosition + frameInterval
+        resizedImage = str(tempFolder + "/TempFrame%d.jpg" % count)
+        img = Image.open(resizedImage)
+        finalBarcode.paste(img,(Barcodewidth,0))
+        Barcodewidth = Barcodewidth + width
+        count += 1
+finalBarcode.save(savePath)
+
+
+
+
+
+
+stop = datetime.datetime.now()
+
+print str(start)
+print str(stop)
+
+
+
+
+
+
+
+
