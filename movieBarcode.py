@@ -6,11 +6,11 @@ import cv2.cv as cv
 from PIL import Image
 
 start = datetime.datetime.now()
-
 moviePath = sys.argv[1]
 savePath = sys.argv[2]
 framesNumber = int(sys.argv[3])
 BarcodeWidth= int(sys.argv[4])
+BarcodeHeight= float(BarcodeWidth)//float(16/9.0)
 
 frameTime = 0
 width = BarcodeWidth / framesNumber
@@ -25,13 +25,11 @@ if not os.path.isdir(tempFolder):
 #capture  video
 stream = cv2.VideoCapture(moviePath)
 
-#get number of frames
 
 Totalframes = stream.get(cv.CV_CAP_PROP_FRAME_COUNT)
 print "total number of frames: "+ str(Totalframes)
 
 frameInterval = Totalframes//framesNumber 
-
 print "Interval between each frame to capture  " + str(frameInterval) +"s"
 
 
